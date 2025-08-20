@@ -1,4 +1,4 @@
-## [簡易的JSON編輯器](https://jsoneditoronline.org/)
+## [簡易的Markdown編輯器](https://marked.js.org/)
 
 ## 安裝執行
 ```bash
@@ -6,4 +6,4 @@ pnpm install
 pnpm run tauri build
 ```
 
-https://github.com/user-attachments/assets/57800f48-1d2f-46a4-9829-6277bcb496fa
+https://github.com/user-attachments/assets/d64bd6a1-b115-4bf2-bc9c-38e9ec1ea069
