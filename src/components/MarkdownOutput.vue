@@ -19,38 +19,46 @@ const props = defineProps({
 const outputIframe = ref<HTMLIFrameElement | null>(null);
 
 function updateIframeContent() {
-  if (outputIframe.value && outputIframe.value.contentDocument) {
-    const doc = outputIframe.value.contentDocument;
-    doc.open();
-    const themeCssLink = props.isDarkTheme
-      ? 'https://cdn.jsdelivr.net/npm/github-markdown-css@5.8.1/github-markdown-dark.css'
-      : 'https://cdn.jsdelivr.net/npm/github-markdown-css@5.8.1/github-markdown-light.css';
-    const highlightJsThemeLink = props.isDarkTheme
-      ? 'https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css'
-      : 'https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css'; // Light theme
 
-    doc.writeln(`
-      <!DOCTYPE html>
-      <html>
-        <head>
-          <link rel="stylesheet" href="${themeCssLink}">
-          <link rel="stylesheet" href="${highlightJsThemeLink}">
-          <style>
-            .markdown-body {
-              padding: 1rem;
-              font-size: ${props.fontSize}em;
-            }
-          </style>
-        </head>
-        <body class="markdown-body">
-          <main class="container">
-            ${props.renderedMarkdown}
-          </main>
-        </body>
-      </html>
-    `);
-    doc.close();
-  }
+  if (!outputIframe.value) return;
+  if (!outputIframe.value.contentWindow) { console.warn('Output iframe is not ready yet.'); return; }
+  if (!outputIframe.value.contentDocument) { return; }
+
+  const themeCssLink = selectThemeCssLink(props.isDarkTheme);  
+  const highlightJsThemeLink = selectHighlightJsThemeLink(props.isDarkTheme);
+  const doc = outputIframe.value.contentDocument;
+
+  doc.open();
+  doc.writeln(`
+    <!DOCTYPE html>
+    <html>
+      <head>
+        <link rel="stylesheet" href="${themeCssLink}">
+        <link rel="stylesheet" href="${highlightJsThemeLink}">
+        <style>
+          .markdown-body { padding: 1rem; font-size: ${props.fontSize}em; }
+        </style>
+      </head>
+      <body class="markdown-body">
+        <main class="container">
+          ${props.renderedMarkdown}
+        </main>
+      </body>
+    </html>
+  `);
+
+  doc.close();
+}
+
+function selectThemeCssLink(isDarkTheme: boolean): string {
+  return isDarkTheme
+    ? 'https://cdn.jsdelivr.net/npm/github-markdown-css@5.8.1/github-markdown-dark.css'
+    : 'https://cdn.jsdelivr.net/npm/github-markdown-css@5.8.1/github-markdown-light.css';
+}
+function selectHighlightJsThemeLink(isDarkTheme: boolean): string {
+  return isDarkTheme
+    ? 'https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css'
+    : 'https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css'; // Light theme
 }
 
 watch(() => props.renderedMarkdown, () => {
