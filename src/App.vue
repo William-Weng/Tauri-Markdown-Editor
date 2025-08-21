@@ -253,6 +253,49 @@ h1 {
   text-align: center;
 }
 
+h2 {
+  margin-top: 0;
+  font-size: 1.2rem;
+  margin-bottom: 0;
+}
+
+button {
+  padding: 0.5em 1em;
+  border: 1px solid #444;
+  background-color: #3a3a3a;
+  color: #e0e0e0;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: background-color 0.2s, border-color 0.2s;
+}
+
+button:hover {
+  background-color: #4a4a4a;
+  border-color: #666;
+}
+
+button:active {
+  background-color: #5a5a5a;
+}
+
+textarea {
+  flex-grow: 1;
+  border-radius: 8px;
+  border: 1px solid #444;
+  padding: 0.8em;
+  font-family: Menlo, Monaco, 'Courier New', monospace;
+  resize: none;
+  line-height: 1.5;
+  background-color: #244f34;
+  color: #eee;
+}
+
+textarea:focus {
+  outline: none;
+  border-color: #5c7e10;
+}
+
 .panels {
   display: flex;
   height: 100%;
@@ -284,35 +327,9 @@ h1 {
   margin-bottom: 1rem;
 }
 
-h2 {
-  margin-top: 0;
-  font-size: 1.2rem;
-  margin-bottom: 0;
-}
-
 .button-group {
   display: flex;
   gap: 0.5rem;
-}
-
-button {
-  padding: 0.5em 1em;
-  border: 1px solid #444;
-  background-color: #3a3a3a;
-  color: #e0e0e0;
-  border-radius: 6px;
-  cursor: pointer;
-  font-size: 0.9rem;
-  transition: background-color 0.2s, border-color 0.2s;
-}
-
-button:hover {
-  background-color: #4a4a4a;
-  border-color: #666;
-}
-
-button:active {
-  background-color: #5a5a5a;
 }
 
 .read-button {
@@ -358,23 +375,6 @@ button:active {
 
 .hide-show-button:hover {
   background-color: #218838; /* A darker green for hover */
-}
-
-textarea {
-  flex-grow: 1;
-  border-radius: 8px;
-  border: 1px solid #444;
-  padding: 0.8em;
-  font-family: Menlo, Monaco, 'Courier New', monospace;
-  resize: none;
-  line-height: 1.5;
-  background-color: #1a1a1a;
-  color: #f0f0f0;
-}
-
-textarea:focus {
-  outline: none;
-  border-color: #5c7e10;
 }
 
 .error-display {
