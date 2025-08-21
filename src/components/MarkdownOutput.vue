@@ -15,8 +15,7 @@ const outputIframe = ref<HTMLIFrameElement | null>(null);
 
 // MARK: - Functions
 /**
- * 更新 iframe 內容
- * @description 將渲染後的 Markdown 內容寫入 iframe 中，並根據主題和字體大小設置樣式。
+ * 將渲染後的 Markdown 內容寫入 iframe 中，並根據主題和字體大小設置樣式。
  */
 function updateIframeContent() {
 
@@ -43,25 +42,25 @@ function htmlContent(isExport: boolean, isDarkTheme: boolean): string {
   const mainTheme = selectMainTheme(isExport, isDarkTheme);
   const heightTheme = selectHeightTheme(isExport, isDarkTheme);
 
-return `
-<!DOCTYPE html>
-<html>
-  <head>
-    <meta charset="UTF-8">
-    <title>Exported Markdown</title>
-    <link rel="stylesheet" href="${mainTheme}">
-    <link rel="stylesheet" href="${heightTheme}">
-    <style>
-      .markdown-body { padding: 1rem; font-size: ${props.fontSize}em; }
-    </style>
-  </head>
-  <body class="markdown-body">
-    <main class="container">
-      ${props.renderedMarkdown}
-    </main>
-  </body>
-</html>
-`.trim();
+  return `
+  <!DOCTYPE html>
+  <html>
+    <head>
+      <meta charset="UTF-8">
+      <title>Exported Markdown</title>
+      <link rel="stylesheet" href="${mainTheme}">
+      <link rel="stylesheet" href="${heightTheme}">
+      <style>
+        .markdown-body { padding: 1rem; font-size: ${props.fontSize}em; }
+      </style>
+    </head>
+    <body class="markdown-body">
+      <main class="container">
+        ${props.renderedMarkdown}
+      </main>
+    </body>
+  </html>
+  `.trim();
 }
 
 /**

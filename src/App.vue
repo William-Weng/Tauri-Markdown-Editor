@@ -211,7 +211,7 @@ onUnmounted(() => {
             <button @click="increaseInputFontSize" title="Increase font size" class="font-size-button">+</button>
           </div>
         </div>
-        <textarea v-model="rawMarkdownInput" :style="{ fontSize: inputFontSize + 'em' }"></textarea>
+        <textarea v-model="rawMarkdownInput" :style="{ fontSize: inputFontSize + 'em' }"  autocorrect="off" autocapitalize="off" spellcheck="false"></textarea>
         <div v-if="errorMessage" class="error-display">{{ errorMessage }}</div>
       </div>
       <div class="panel" :class="{ 'panel-hidden': !isRightPanelVisible }">
