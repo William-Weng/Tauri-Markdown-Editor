@@ -32,6 +32,8 @@ const renderedMarkdown: ComputedRef<string> = computed(() => {
   return marked.parse(rawMarkdownInput.value, { gfm: true }) as string;
 });
 
+const markdownOutputRef = ref();
+
 // MARK: - async functions
 /** 
  * 打開文件選擇對話框並讀取 Markdown 文件
@@ -53,14 +55,11 @@ async function readFile() {
 async function saveFile() {
 
   try {
-    const filePath = await save({
-      filters: [{ name: 'Markdown Files', extensions: fileExtensions }],
-    });
-
-    if (!filePath) { errorMessage.value = ''; return; }
+    const filePath = await save({ filters: [{ name: 'Markdown Files', extensions: fileExtensions }] });
+    
+    if (!filePath) { errorMessage.value = 'No file path selected.'; return; }
     await writeTextFile(filePath, rawMarkdownInput.value);
     errorMessage.value = 'File saved successfully!';
-
   } catch (error) {
     errorMessage.value = `Error saving file: ${error}`;
     console.error('Error saving file:', error);
@@ -85,9 +84,7 @@ async function displayMarkdown(filePath?: string) {
     
     let newLine = line
 
-    if (line.endsWith('\0')) {
-      newLine = line.slice(0, -1);
-    }
+    if (line.endsWith('\0')) { newLine = line.slice(0, -1); }
     parsed += newLine + '\n';
   }
 
@@ -122,6 +119,15 @@ function handleFileDragDrop() {
     const filePath = event.payload.paths[0];
     displayMarkdown(filePath);
   });
+}
+
+/**
+ * 匯出 HTML 文件
+ * @returns 返回匯出結果的訊息
+ */
+async function handleExportHtml() {
+  if (!markdownOutputRef.value) { errorMessage.value = 'Markdown output component is not ready.'; return; }
+  errorMessage.value = await markdownOutputRef.value.exportHtmlFile();
 }
 
 // MARK: - Functions
@@ -207,13 +213,14 @@ onUnmounted(() => {
         <div class="panel-header">
           <h2>Rendered Output</h2>
           <div class="button-group">
+            <button @click="handleExportHtml" title="Export as HTML" class="save-button">Export HTML</button>
             <button @click="toggleLeftPanel" :title="isLeftPanelVisible ? 'Hide Input Panel' : 'Show Input Panel'" class="toggle-panel-button hide-show-button">{{ isLeftPanelVisible ? 'Hide' : 'Show' }}</button>
             <button @click="decreaseOutputFontSize" title="Decrease output font size" class="font-size-button">-</button>
             <button @click="increaseOutputFontSize" title="Increase output font size" class="font-size-button">+</button>
             <button @click="toggleTheme" title="Toggle Theme" class="toggle-panel-button">{{ isDarkTheme ? 'Light Theme' : 'Dark Theme' }}</button>
           </div>
         </div>
-        <MarkdownOutput :renderedMarkdown="renderedMarkdown" :isDarkTheme="isDarkTheme" :fontSize="outputFontSize" />
+        <MarkdownOutput ref="markdownOutputRef" :renderedMarkdown="renderedMarkdown" :isDarkTheme="isDarkTheme" :fontSize="outputFontSize" />
       </div>
     </div>
   </main>
