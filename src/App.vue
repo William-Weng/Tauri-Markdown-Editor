@@ -62,9 +62,12 @@ async function saveFile() {
       defaultPath: defaultPath
     });
 
-    if (!filePath) { errorMessage.value = 'No file path selected.'; return; }
-    await writeTextFile(filePath, rawMarkdownInput.value);
     errorMessage.value = 'File saved successfully!';
+    if (!filePath) { errorMessage.value = 'No file path selected.'; return; }
+    if (typeof filePath !== 'string') { errorMessage.value = 'Invalid file path selected.'; return; }
+
+    await writeTextFile(filePath, rawMarkdownInput.value);
+    defaultPath = filePath as string;
   } catch (error) {
     errorMessage.value = `Error saving file: ${error}`;
     console.error('Error saving file:', error);
