@@ -23,6 +23,9 @@ importers:
       '@types/marked':
         specifier: ^6.0.0
         version: 6.0.0
+      github-markdown-css:
+        specifier: ^5.8.1
+        version: 5.8.1
       highlight.js:
         specifier: ^11.11.1
         version: 11.11.1
@@ -523,6 +526,10 @@ packages:
     engines: {node: ^8.16.0 || ^10.6.0 || >=11.0.0}
     os: [darwin]
 
+  github-markdown-css@5.8.1:
+    resolution: {integrity: sha512-8G+PFvqigBQSWLQjyzgpa2ThD9bo7+kDsriUIidGcRhXgmcaAWUIpCZf8DavJgc+xifjbCG+GvMyWr0XMXmc7g==}
+    engines: {node: '>=10'}
+
   he@1.2.0:
     resolution: {integrity: sha512-F/1DnUGPopORZi0ni+CvrCgHQ5FyEAHRLSApuYWMmrbSwoN2Mn/7k+Gl38gJnR7yyDZk6WLXwiGod1JOWNDKGw==}
     hasBin: true
@@ -1018,6 +1025,8 @@ snapshots:
 
   fsevents@2.3.3:
     optional: true
+
+  github-markdown-css@5.8.1: {}
 
   he@1.2.0: {}
 
