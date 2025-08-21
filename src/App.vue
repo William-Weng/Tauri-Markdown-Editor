@@ -368,8 +368,8 @@ textarea {
   font-family: Menlo, Monaco, 'Courier New', monospace;
   resize: none;
   line-height: 1.5;
-  background-color: #2a2a2a;
-  color: #e0e0e0;
+  background-color: #1a1a1a;
+  color: #f0f0f0;
 }
 
 textarea:focus {
