@@ -34,6 +34,8 @@ const renderedMarkdown: ComputedRef<string> = computed(() => {
 
 const markdownOutputRef = ref();
 
+let defaultPath = 'untitled.md'
+
 // MARK: - async functions
 /** 
  * 打開文件選擇對話框並讀取 Markdown 文件
@@ -55,8 +57,11 @@ async function readFile() {
 async function saveFile() {
 
   try {
-    const filePath = await save({ filters: [{ name: 'Markdown Files', extensions: fileExtensions }] });
-    
+    const filePath = await save({ 
+      filters: [{ name: 'Markdown Files', extensions: fileExtensions }],
+      defaultPath: defaultPath
+    });
+
     if (!filePath) { errorMessage.value = 'No file path selected.'; return; }
     await writeTextFile(filePath, rawMarkdownInput.value);
     errorMessage.value = 'File saved successfully!';
@@ -115,9 +120,9 @@ function handleKeyboardEvent(event: KeyboardEvent) {
 function handleFileDragDrop() {
 
   listen('tauri://drag-drop', (event: any) => {
-    if (!event?.payload?.paths[0]) { errorMessage.value ='eff'; return };
-    const filePath = event.payload.paths[0];
-    displayMarkdown(filePath);
+    if (!event?.payload?.paths[0]) { errorMessage.value =''; return };
+    defaultPath = event.payload.paths[0];
+    displayMarkdown(defaultPath);
   });
 }
 
@@ -127,7 +132,7 @@ function handleFileDragDrop() {
  */
 async function handleExportHtml() {
   if (!markdownOutputRef.value) { errorMessage.value = 'Markdown output component is not ready.'; return; }
-  errorMessage.value = await markdownOutputRef.value.exportHtmlFile();
+  errorMessage.value = await markdownOutputRef.value.exportHtmlFile(defaultPath);
 }
 
 // MARK: - Functions

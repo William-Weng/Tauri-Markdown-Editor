@@ -20,7 +20,7 @@ const outputIframe = ref<HTMLIFrameElement | null>(null);
  */
 function updateIframeContent() {
 
-  if (!outputIframe.value) return;
+  if (!outputIframe.value) { return; }
   if (!outputIframe.value.contentWindow) { console.warn('Output iframe is not ready yet.'); return; }
   if (!outputIframe.value.contentDocument) { return; }
 
@@ -88,11 +88,18 @@ function selectHeightTheme(isExport: boolean, isDarkTheme: boolean): string {
 
 /**
  * 匯出渲染後的 HTML 檔案
+ * @param defaultPath 預設儲存路徑
+ * @returns 返回匯出結果的訊息
  */
-async function exportHtmlFile() {
+async function exportHtmlFile(defaultPath: string) {
+
+  let exportPath = defaultPath.replace(/\.(md|txt)$/i, '') + '.html';
 
   try {
-    const filePath = await save({ filters: [{ name: 'HTML Files', extensions: ['html'] }] });
+    const filePath = await save({
+      filters: [{ name: 'HTML Files', extensions: ['html'] }],
+      defaultPath: exportPath
+    });
     if (!filePath) return;
     await writeTextFile(filePath, htmlContent(true, props.isDarkTheme));
     return 'HTML exported successfully!';
