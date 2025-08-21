@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, onUnmounted, ComputedRef } from 'vue';
-import MarkdownOutput from './components/MarkdownOutput.vue';
 import { marked } from 'marked';
 import { markedHighlight } from 'marked-highlight';
 import hljs from 'highlight.js';
@@ -8,6 +7,8 @@ import hljs from 'highlight.js';
 import { open, save } from '@tauri-apps/plugin-dialog';
 import { readTextFileLines, writeTextFile } from '@tauri-apps/plugin-fs';
 import { listen } from "@tauri-apps/api/event";
+
+import MarkdownOutput from './components/MarkdownOutput.vue';
 
 marked.use(markedHighlight({
   langPrefix: 'hljs language-', // highlight.js css expects a language- prefix
@@ -31,6 +32,99 @@ const renderedMarkdown: ComputedRef<string> = computed(() => {
   return marked.parse(rawMarkdownInput.value, { gfm: true }) as string;
 });
 
+// MARK: - async functions
+/** 
+ * 打開文件選擇對話框並讀取 Markdown 文件
+ */
+async function readFile() {
+
+  const filePath = await open({
+    multiple: false,
+    directory: false,
+    filters: [{ name: 'Markdown Files', extensions: fileExtensions }],
+  });
+
+  displayMarkdown(filePath as string);
+}
+
+/**
+ * 打開文件保存對話框並保存 Markdown 文件
+ */
+async function saveFile() {
+
+  try {
+    const filePath = await save({
+      filters: [{ name: 'Markdown Files', extensions: fileExtensions }],
+    });
+
+    if (!filePath) { errorMessage.value = ''; return; }
+    await writeTextFile(filePath, rawMarkdownInput.value);
+    errorMessage.value = 'File saved successfully!';
+
+  } catch (error) {
+    errorMessage.value = `Error saving file: ${error}`;
+    console.error('Error saving file:', error);
+  }
+}
+
+/** 
+ * 根據文件路徑讀取 Markdown 文件並顯示內容
+ * @param filePath - 要讀取的文件路徑
+ */
+async function displayMarkdown(filePath?: string) {
+
+  if (!filePath) { errorMessage.value = ''; return; }
+
+  const fileExtension = filePath.split('.').pop();
+  if (!fileExtensions.includes(fileExtension || '')) { errorMessage.value = `Unsupported file type: ${fileExtension}`; return; }
+
+  const lines = await readTextFileLines(filePath);
+  let parsed = '';
+
+  for await (const line of lines) {
+    
+    let newLine = line
+
+    if (line.endsWith('\0')) {
+      newLine = line.slice(0, -1);
+    }
+    parsed += newLine + '\n';
+  }
+
+  rawMarkdownInput.value = parsed;
+}
+
+// MARK: - event handlers
+/**
+ * 處理鍵盤事件以增減字體大小 (Command / Ctrl + '+' / '=' / '-')
+ * @param event - 鍵盤事件
+ */
+function handleKeyboardEvent(event: KeyboardEvent) {
+
+  if (event.metaKey || event.ctrlKey) {
+    switch (event.key) {
+      case '=': // Typically the key for '+' without Shift
+      case '+': event.preventDefault(); increaseInputFontSize(); increaseOutputFontSize(); break;
+      case '-': event.preventDefault(); decreaseInputFontSize(); decreaseOutputFontSize() ;break;
+      case 'r': event.preventDefault(); readFile(); break;
+      case 's': event.preventDefault(); saveFile(); break;
+    }
+  }
+}
+
+/**
+ * 處理文件拖放事件
+ */
+function handleFileDragDrop() {
+
+  listen('tauri://drag-drop', (event: any) => {
+    if (!event?.payload?.paths[0]) { errorMessage.value ='eff'; return };
+    const filePath = event.payload.paths[0];
+    displayMarkdown(filePath);
+  });
+}
+
+// MARK: - Functions
 /** 
  * 切換輸入面板的顯示狀態 (左) 
  */
@@ -78,100 +172,6 @@ function increaseOutputFontSize() {
  */
 function decreaseOutputFontSize() {
   if (outputFontSize.value > 0.5) { outputFontSize.value -= 0.1; }
-}
-
-// MARK: - async functions
-/** 
- * 打開文件選擇對話框並讀取 Markdown 文件
- */
-async function readFile() {
-
-  const filePath = await open({
-    multiple: false,
-    directory: false,
-    filters: [{ name: 'Markdown Files', extensions: fileExtensions }],
-  });
-
-  displayMarkdown(filePath as string);
-}
-
-/**
- * 打開文件保存對話框並保存 Markdown 文件
- */
-async function saveFile() {
-  try {
-    const filePath = await save({
-      filters: [{ name: 'Markdown Files', extensions: fileExtensions }],
-    });
-
-    if (filePath) {
-      await writeTextFile(filePath, rawMarkdownInput.value);
-      errorMessage.value = 'File saved successfully!';
-    } else {
-      errorMessage.value = 'Save operation cancelled.';
-    }
-  } catch (error) {
-    errorMessage.value = `Error saving file: ${error}`;
-    console.error('Error saving file:', error);
-  }
-}
-
-/** 
- * 根據文件路徑讀取 Markdown 文件並顯示內容
- * @param filePath - 要讀取的文件路徑
- */
-async function displayMarkdown(filePath?: string) {
-
-  if (!filePath) { errorMessage.value = 'file extension is null.'; return; }
-
-  const fileExtension = filePath.split('.').pop();
-  if (!fileExtensions.includes(fileExtension || '')) { errorMessage.value = `Unsupported file type: ${fileExtension}`; return; }
-
-  const lines = await readTextFileLines(filePath);
-  let parsed = '';
-
-  for await (const line of lines) {
-    
-    let newLine = line
-
-    if (line.endsWith('\0')) {
-      newLine = line.slice(0, -1);
-    }
-    parsed += newLine + '\n';
-  }
-
-  rawMarkdownInput.value = parsed;
-}
-
-// MARK: - event handlers
-/**
- * 處理鍵盤事件以增減字體大小 (Command / Ctrl + '+' / '=' / '-')
- * @param event - 鍵盤事件
- */
-function handleKeyboardEvent(event: KeyboardEvent) {
-
-  if (event.metaKey || event.ctrlKey) {
-    switch (event.key) {
-      case '=': // Typically the key for '+' without Shift
-      case '+': event.preventDefault(); increaseInputFontSize(); increaseOutputFontSize(); break;
-      case '-': event.preventDefault(); decreaseInputFontSize(); decreaseOutputFontSize() ;break;
-      case 'r': event.preventDefault(); readFile(); break;
-      case 's': event.preventDefault(); saveFile(); break;
-    }
-  }
-}
-
-/**
- * 處理文件拖放事件
- */
-function handleFileDragDrop() {
-
-  listen('tauri://drag-drop', (event: any) => {
-    if (event?.payload?.paths.length > 0) {
-      const filePath = event.payload.paths[0];
-      displayMarkdown(filePath);
-    }
-  });
 }
 
 // MARK: - 生命週期

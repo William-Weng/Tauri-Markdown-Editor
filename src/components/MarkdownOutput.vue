@@ -2,22 +2,18 @@
 import { ref, watch, onMounted } from 'vue';
 
 const props = defineProps({
-  renderedMarkdown: {
-    type: String,
-    required: true,
-  },
-  isDarkTheme: {
-    type: Boolean,
-    required: true,
-  },
-  fontSize: {
-    type: Number,
-    default: 1.0,
-  },
+  renderedMarkdown: { type: String, required: true },
+  isDarkTheme: { type: Boolean, required: true },
+  fontSize: { type: Number, default: 1.0 },
 });
 
 const outputIframe = ref<HTMLIFrameElement | null>(null);
 
+// MARK: - Functions
+/**
+ * 更新 iframe 內容
+ * @description 將渲染後的 Markdown 內容寫入 iframe 中，並根據主題和字體大小設置樣式。
+ */
 function updateIframeContent() {
 
   if (!outputIframe.value) return;
@@ -50,17 +46,25 @@ function updateIframeContent() {
   doc.close();
 }
 
+/**
+ * [選擇主題 CSS 連結](https://cdn.jsdelivr.net/npm/github-markdown-css@5.8.1/github-markdown-dark.css)
+ * @param isDarkTheme [是否為深色主題](https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css)
+ * @returns 主題 CSS 連結
+ */
 function selectThemeCssLink(isDarkTheme: boolean): string {
-  return isDarkTheme
-    ? 'https://cdn.jsdelivr.net/npm/github-markdown-css@5.8.1/github-markdown-dark.css'
-    : 'https://cdn.jsdelivr.net/npm/github-markdown-css@5.8.1/github-markdown-light.css';
-}
-function selectHighlightJsThemeLink(isDarkTheme: boolean): string {
-  return isDarkTheme
-    ? 'https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css'
-    : 'https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css'; // Light theme
+  return isDarkTheme ? '/assets/github-markdown-dark.css' : '/assets/github-markdown-light.css';
 }
 
+/**
+ * [選擇 Highlight.js 主題 CSS 連結](https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css)
+ * @param isDarkTheme [是否為深色主題](https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css)
+ * @returns Highlight.js 主題 CSS 連結
+ */
+function selectHighlightJsThemeLink(isDarkTheme: boolean): string {
+  return isDarkTheme ? '/assets/github-dark.min.css' : '/assets/github.min.css';
+}
+
+// MARK: - 生命週期
 watch(() => props.renderedMarkdown, () => {
   updateIframeContent();
 }, { immediate: true });
