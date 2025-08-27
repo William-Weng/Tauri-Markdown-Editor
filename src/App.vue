@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, computed, onMounted, onUnmounted, ComputedRef } from 'vue';
+import { ref, computed, onMounted, onUnmounted, ComputedRef, watch } from 'vue';
 import { marked } from 'marked';
 import { markedHighlight } from 'marked-highlight';
 import hljs from 'highlight.js';
@@ -19,7 +19,6 @@ marked.use(markedHighlight({
 }));
 
 const rawMarkdownInput = ref(`# Welcome to Tauri-Markdown-Editor\n\nThis is a simple Markdown editor built with Tauri and Vue.\n\n## Features\n\n- Real-time Markdown rendering\n- File reading and drag-and-drop\n- Basic styling\n\n## Start writing!\n\nGo ahead and edit this text to see the live preview on the right.\n\n## Build\n\`\`\`bash\npnpm install\npnpm run tauri build\n\`\`\``);
-
 const inputFontSize = ref(1.2);
 const outputFontSize = ref(1.0);
 const isRightPanelVisible = ref(true);
@@ -27,6 +26,8 @@ const isLeftPanelVisible = ref(true);
 const fileExtensions = ['md', 'txt'];
 const errorMessage = ref('');
 const isDarkTheme = ref(false);
+const textareaBackgroundColor = ref('#444');
+const colorInput = ref<HTMLInputElement | null>(null);
 
 const renderedMarkdown: ComputedRef<string> = computed(() => {
   return marked.parse(rawMarkdownInput.value, { gfm: true }) as string;
@@ -40,7 +41,7 @@ let defaultPath = 'untitled.md'
 /** 
  * 打開文件選擇對話框並讀取 Markdown 文件
  */
-async function readFile() {
+async function openFile() {
 
   const filePath = await open({
     multiple: false,
@@ -57,7 +58,7 @@ async function readFile() {
 async function saveFile() {
 
   try {
-    const filePath = await save({ 
+    const filePath = await save({
       filters: [{ name: 'Markdown Files', extensions: fileExtensions }],
       defaultPath: defaultPath
     });
@@ -111,7 +112,7 @@ function handleKeyboardEvent(event: KeyboardEvent) {
       case '=': // Typically the key for '+' without Shift
       case '+': event.preventDefault(); increaseInputFontSize(); increaseOutputFontSize(); break;
       case '-': event.preventDefault(); decreaseInputFontSize(); decreaseOutputFontSize() ;break;
-      case 'r': event.preventDefault(); readFile(); break;
+      case 'o': event.preventDefault(); openFile(); break;
       case 's': event.preventDefault(); saveFile(); break;
     }
   }
@@ -188,14 +189,34 @@ function decreaseOutputFontSize() {
   if (outputFontSize.value > 0.5) { outputFontSize.value -= 0.1; }
 }
 
+/**
+ * 開啟調色盤
+ */
+function openColorPicker() {
+  colorInput.value?.click();
+}
+
+/**
+ * 取得設定好的背景色色碼
+ */
+function defaultBackgroundColor() {
+  const savedColor = localStorage.getItem('textareaBackgroundColor');
+  if (savedColor) { textareaBackgroundColor.value = savedColor; }
+}
+
 // MARK: - 生命週期
 onMounted(() => {
   window.addEventListener('keydown', handleKeyboardEvent);
   handleFileDragDrop();
+  defaultBackgroundColor();
 });
 
 onUnmounted(() => {
   window.removeEventListener('keydown', handleKeyboardEvent);
+});
+
+watch(textareaBackgroundColor, (newColor: any) => {
+  localStorage.setItem('textareaBackgroundColor', newColor);
 });
 
 </script>
@@ -207,14 +228,20 @@ onUnmounted(() => {
         <div class="panel-header">
           <h2>Input Markdown</h2>
           <div class="button-group">
-            <button @click="readFile" title="Read file" class="save-button">Read</button>
-            <button @click="saveFile" title="Save file" class="read-button">Save</button>
+            <button @click="openFile" title="Open file" class="open-button">Open</button>
+            <button @click="saveFile" title="Save file" class="save-button">Save</button>
             <button @click="toggleRightPanel" :title="isRightPanelVisible ? 'Hide Output Panel' : 'Show Output Panel'" class="toggle-panel-button hide-show-button">{{ isRightPanelVisible ? 'Hide' : 'Show' }}</button>
+            <div style="position: relative;">
+              <button @click="openColorPicker" title="Change background color">
+                Color
+                <input type="color" ref="colorInput" v-model="textareaBackgroundColor" style="position: absolute; opacity: 0; width: 0; height: 0; pointer-events: none;" />
+              </button>
+            </div>
             <button @click="decreaseInputFontSize" title="Decrease font size" class="font-size-button">-</button>
             <button @click="increaseInputFontSize" title="Increase font size" class="font-size-button">+</button>
           </div>
         </div>
-        <textarea v-model="rawMarkdownInput" :style="{ fontSize: inputFontSize + 'em' }"  autocorrect="off" autocapitalize="off" spellcheck="false"></textarea>
+        <textarea v-model="rawMarkdownInput" :style="{ fontSize: inputFontSize + 'em', backgroundColor: textareaBackgroundColor }"  autocorrect="off" autocapitalize="off" spellcheck="false"></textarea>
         <div v-if="errorMessage" class="error-display">{{ errorMessage }}</div>
       </div>
       <div class="panel" :class="{ 'panel-hidden': !isRightPanelVisible }">
@@ -233,6 +260,7 @@ onUnmounted(() => {
     </div>
   </main>
 </template>
+
 
 <style scoped>
 :global(body) {
@@ -290,7 +318,7 @@ textarea {
   font-family: Menlo, Monaco, 'Courier New', monospace;
   resize: none;
   line-height: 1.5;
-  background-color: #244f34;
+  background-color: #444;
   color: #eee;
 }
 
@@ -335,21 +363,21 @@ textarea:focus {
   gap: 0.5rem;
 }
 
-.read-button {
+.save-button {
   background-color: #FF00FF; /* A standard brown */
   color: white;
 }
 
-.read-button:hover {
+.save-button:hover {
   background-color: #e9068f; /* A darker brown for hover */
 }
 
-.save-button {
+.open-button {
   background-color: #007bff; /* A standard blue */
   color: white;
 }
 
-.save-button:hover {
+.open-button:hover {
   background-color: #0056b3; /* A darker blue for hover */
 }
 
