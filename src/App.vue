@@ -18,9 +18,11 @@ marked.use(markedHighlight({
   }
 }));
 
+const defaultInputFontSize = 1.2
+const defaultOutputFontSize = 1.2
 const rawMarkdownInput = ref(`# Welcome to Tauri-Markdown-Editor\n\nThis is a simple Markdown editor built with Tauri and Vue.\n\n## Features\n\n- Real-time Markdown rendering\n- File reading and drag-and-drop\n- Basic styling\n\n## Start writing!\n\nGo ahead and edit this text to see the live preview on the right.\n\n## Build\n\`\`\`bash\npnpm install\npnpm run tauri build\n\`\`\``);
-const inputFontSize = ref(1.2);
-const outputFontSize = ref(1.0);
+const inputFontSize = ref(defaultInputFontSize);
+const outputFontSize = ref(defaultOutputFontSize);
 const isRightPanelVisible = ref(true);
 const isLeftPanelVisible = ref(true);
 const fileExtensions = ['md', 'txt'];
@@ -108,12 +110,16 @@ async function displayMarkdown(filePath?: string) {
 function handleKeyboardEvent(event: KeyboardEvent) {
 
   if (event.metaKey || event.ctrlKey) {
+
+    event.preventDefault();
+
     switch (event.key) {
       case '=': // Typically the key for '+' without Shift
-      case '+': event.preventDefault(); increaseInputFontSize(); increaseOutputFontSize(); break;
-      case '-': event.preventDefault(); decreaseInputFontSize(); decreaseOutputFontSize() ;break;
-      case 'o': event.preventDefault(); openFile(); break;
-      case 's': event.preventDefault(); saveFile(); break;
+      case '+': increaseInputFontSize(); increaseOutputFontSize(); break;
+      case '-': decreaseInputFontSize(); decreaseOutputFontSize(); break;
+      case '0': resetFontSize(); break
+      case 'o': openFile(); break;
+      case 's': saveFile(); break;
     }
   }
 }
@@ -187,6 +193,14 @@ function increaseOutputFontSize() {
  */
 function decreaseOutputFontSize() {
   if (outputFontSize.value > 0.5) { outputFontSize.value -= 0.1; }
+}
+
+/**
+ * 回復面板預設字體大小
+ */
+function resetFontSize() {
+  inputFontSize.value = defaultInputFontSize
+  outputFontSize.value = defaultOutputFontSize
 }
 
 /**
