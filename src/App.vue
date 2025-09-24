@@ -84,6 +84,7 @@ async function saveFile() {
 async function displayMarkdown(filePath?: string) {
 
   if (!filePath) { errorMessage.value = ''; return; }
+  defaultPath = filePath;
 
   const fileExtension = filePath.split('.').pop();
   if (!fileExtensions.includes(fileExtension || '')) { errorMessage.value = `Unsupported file type: ${fileExtension}`; return; }
@@ -111,9 +112,8 @@ function handleKeyboardEvent(event: KeyboardEvent) {
 
   if (event.metaKey || event.ctrlKey) {
     
-    if (['a', 'c', 'v', 'z', 'q'].includes(event.key)) { return; } // 忽略常用快捷鍵
-
-    event.preventDefault();
+    // 停用這些快捷鍵
+    if (['=', '+', '-', '0', 'o', 's'].includes(event.key)) { event.preventDefault(); }
 
     switch (event.key) {
       case '=': // Typically the key for '+' without Shift
@@ -122,6 +122,7 @@ function handleKeyboardEvent(event: KeyboardEvent) {
       case '0': resetFontSize(); break
       case 'o': openFile(); break;
       case 's': saveFile(); break;
+      default: break;
     }
   }
 }
@@ -133,8 +134,8 @@ function handleFileDragDrop() {
 
   listen('tauri://drag-drop', (event: any) => {
     if (!event?.payload?.paths[0]) { errorMessage.value =''; return };
-    defaultPath = event.payload.paths[0];
-    displayMarkdown(defaultPath);
+    const filePath = event.payload.paths[0];
+    displayMarkdown(filePath);
   });
 }
 

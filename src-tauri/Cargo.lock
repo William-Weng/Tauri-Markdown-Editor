@@ -3741,19 +3741,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "tauri-json-editor"
-version = "0.1.0"
-dependencies = [
- "serde",
- "serde_json",
- "tauri",
- "tauri-build",
- "tauri-plugin-dialog",
- "tauri-plugin-fs",
- "tauri-plugin-opener",
-]
-
-[[package]]
 name = "tauri-macros"
 version = "2.3.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -3765,6 +3752,19 @@ dependencies = [
  "syn 2.0.106",
  "tauri-codegen",
  "tauri-utils",
+]
+
+[[package]]
+name = "tauri-markdown-editor"
+version = "0.1.6"
+dependencies = [
+ "serde",
+ "serde_json",
+ "tauri",
+ "tauri-build",
+ "tauri-plugin-dialog",
+ "tauri-plugin-fs",
+ "tauri-plugin-opener",
 ]
 
 [[package]]

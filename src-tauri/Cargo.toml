@@ -1,6 +1,6 @@
 [package]
-name = "tauri-json-editor"
-version = "0.1.0"
+name = "tauri-markdown-editor"
+version = "0.1.6"
 description = "以Tauri + marked實現的Markdown編譯器"
 authors = ["William"]
 edition = "2021"
